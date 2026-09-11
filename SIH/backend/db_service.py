@@ -1,4 +1,5 @@
 import sqlite3
+from db_service import get_master_schedule, get_live_updates
 
 DB_PATH = "sih.db"
 
@@ -61,6 +62,19 @@ def init_db():
         instructions TEXT,
         FOREIGN KEY (cycle_id) REFERENCES reporting_cycles(cycle_id),
         FOREIGN KEY (activity_code) REFERENCES schedule_activities(activity_code)
+    );
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS live_updates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        raw_text TEXT,
+        activity_code TEXT,
+        status TEXT,
+        progress INTEGER,
+        confidence REAL,
+        requires_review BOOLEAN,
+        delay_reason TEXT
     );
     """)
 
@@ -128,6 +142,26 @@ def save_parsed_govt_plan(plan_data: dict):
             task.get("activity_description")
         ))
 
+        cursor.execute("""
+        INSERT INTO live_updates (raw_text, activity_code, status, progress, confidence, requires_review, delay_reason)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+        dpr_text,
+        ai_out.get("activity_code") if isinstance(ai_out, dict) else None,
+        ai_out.get("status") if isinstance(ai_out, dict) else None,
+        ai_out.get("progress_percent", 0) if isinstance(ai_out, dict) else 0,
+        ai_out.get("confidence_score", 0.0) if isinstance(ai_out, dict) else 0.0,
+        ai_out.get("requires_human_review", False) if isinstance(ai_out, dict) else False,
+        ai_out.get("delay_reason") if isinstance(ai_out, dict) else None,
+        ))
+
     conn.commit()
     conn.close()
     return cycle_id
+    def get_live_updates(limit: int = 50):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM live_updates ORDER BY id DESC LIMIT ?", (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
