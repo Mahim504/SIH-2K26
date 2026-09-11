@@ -60,6 +60,21 @@ export default function SubmitProgress() {
     }
   };
 
+  const handleApplyAnalysis = () => {
+    if (!analyzedData) return;
+    setFormData((prev) => ({
+      ...prev,
+      progress: String(parseInt(analyzedData.progress, 10) || 0),
+      status: mapAiStatus(analyzedData.status),
+      delayReason: analyzedData.delayReason,
+      expectedFinish: analyzedData.expectedFinish,
+      remarks: analyzedData.remarks,
+    }));
+    setAnalyzedData(null);
+    setSubmittedMessage('AI analysis applied to the form. Review and click "Submit Update" to finalize.');
+    setTimeout(() => setSubmittedMessage(null), 4000);
+  };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmittedMessage('Progress update recorded and synchronized with Project Control Tower.');
