@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --navy-primary: #123A63;
+    --navy-dark: #0B2948;
+    --text-body: #25313C;
+    --text-secondary: #687582;
+    --text-muted: #89939D;
+    --bg-main: #F5F6F7;
+    --bg-sidebar: #F3F5F7;
+    --bg-card: #FFFFFF;
+    --border-color: #D9E0E6;
+    --gov-blue: #064F7C;
+    --gov-blue-hover: #075985;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-body);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Custom Government MIS Table styles */
+  .gov-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    color: #25313C;
+  }
+
+  .gov-table th {
+    background-color: #F2F4F6;
+    color: #123A63;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid #DCE2E7;
+    white-space: nowrap;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .gov-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #EAEFF4;
+    vertical-align: middle;
+  }
+
+  .gov-table tr:hover {
+    background-color: #F7F9FA;
+  }
+}
