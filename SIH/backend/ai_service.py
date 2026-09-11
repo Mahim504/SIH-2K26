@@ -1,10 +1,12 @@
 import json
+import os
 from google import genai
+from dotenv import load_dotenv
 
-# Yahan apni Google Gemini API Key daal do
-GEMINI_API_KEY = "AQ.Ab8RN6KU2W-mI3L3Vq58PPN_yc9fLdLIc3tPsCV3TQfMcqg62A"
+load_dotenv()
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 def process_dpr_with_ai(dpr_text: str):
     prompt = f"""
@@ -25,6 +27,9 @@ def process_dpr_with_ai(dpr_text: str):
     """
 
     try:
+        if client is None:
+            raise RuntimeError("GEMINI_API_KEY is not set in the environment (.env file).")
+    
         response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
