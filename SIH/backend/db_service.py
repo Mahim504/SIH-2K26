@@ -1,5 +1,4 @@
 import sqlite3
-from db_service import get_master_schedule, get_live_updates
 
 DB_PATH = "sih.db"
 
