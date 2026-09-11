@@ -4,6 +4,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.services.pdf_parser import GovtPDFParser
 from backend.db_service import init_db, save_parsed_govt_plan, get_db_connection
+from db_service import get_master_schedule, get_live_updates
 
 app = FastAPI(title="Project Pulse Backend", version="1.0.0")
 
@@ -79,3 +80,12 @@ def get_project_assignments(project_id: str):
         "project": dict(project),
         "assigned_tasks": assignments
     }
+
+@app.get("/api/schedule")
+def api_get_schedule():
+    return get_master_schedule()
+
+
+@app.get("/api/updates")
+def api_get_updates(limit: int = 50):
+    return get_live_updates(limit)
