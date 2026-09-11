@@ -10,6 +10,7 @@ import {
   Edit3,
   Loader2,
 } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export default function SubmitProgress() {
   const [formData, setFormData] = useState({
@@ -31,34 +32,31 @@ export default function SubmitProgress() {
   const [analyzedData, setAnalyzedData] = useState(null);
   const [submittedMessage, setSubmittedMessage] = useState(null);
 
-  const handleAnalyze = () => {
+    const handleAnalyze = async () => {
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      setAnalyzedData({
-        activity: 'Line 24 Erection (PIP-L5-024)',
-        progress: '60%',
-        status: 'Delayed',
-        delayReason: 'Material Shortage',
-        expectedFinish: '13 Sep 2026',
-        remarks: '24-inch pipes have not arrived',
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/process-dpr-agentic`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_text: nlText }),
       });
-    }, 600);
-  };
+      if (!res.ok) throw new Error(`Backend error: ${res.status}`);
+      const data = await res.json();
+      const ai = data.ai_extraction || {};
 
-  const handleApplyAnalysis = () => {
-    if (analyzedData) {
-      setFormData((prev) => ({
-        ...prev,
-        activity: analyzedData.activity,
-        progress: '60',
-        status: analyzedData.status,
-        delayReason: analyzedData.delayReason,
-        expectedFinish: '2026-09-13',
-        remarks: analyzedData.remarks,
-      }));
-      setSubmittedMessage('AI interpretation applied to structured form below.');
-      setTimeout(() => setSubmittedMessage(null), 3000);
+      setAnalyzedData({
+        activity: ai.canonical_activity || ai.activity_code || 'Unrecognized activity',
+        progress: `${ai.progress_percent ?? 0}%`,
+        status: ai.status || 'REVIEW_REQUIRED',
+        delayReason: ai.delay_reason || 'None / On Schedule',
+        expectedFinish: formData.expectedFinish,
+        remarks: ai.error ? `AI error: ${ai.error}` : nlText,
+      });
+    } catch (err) {
+      setSubmittedMessage(`Could not reach AI backend: ${err.message}`);
+      setTimeout(() => setSubmittedMessage(null), 4000);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
